@@ -190,7 +190,10 @@ public abstract class MovementController : MonoBehaviour {
 				Facing = Vector2.left;
 			}
 			if (!collidingLeft) {
-				velocity = new Vector2 (h * MaxSpeed, velocity.y);
+				if(sprinting){
+					velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
+				}
+				else velocity = new Vector2 (h * MaxSpeed, velocity.y);
 			} else {
 				velocity = new Vector2 (0, velocity.y);
 			}
@@ -200,14 +203,17 @@ public abstract class MovementController : MonoBehaviour {
 			}
 
 			if (!collidingRight) {
-				velocity = new Vector2 (h * MaxSpeed, velocity.y);
+				if(sprinting){
+					velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
+				}
+				else velocity = new Vector2 (h * MaxSpeed, velocity.y);
 			} else {
 				velocity = new Vector2 (0, velocity.y);
 			}
 		} else {
 			velocity = new Vector2 (0, velocity.y);
 		}
-		if(sprinting) velocity += new Vector2(h * sprintingBoost, velocity.y);
+		//if(sprinting) velocity += new Vector2(h * sprintingBoost, velocity.y);
 	}
 
 	protected void SetVerticalSpeed () {
