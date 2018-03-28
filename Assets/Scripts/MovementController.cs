@@ -8,7 +8,7 @@ public abstract class MovementController : MonoBehaviour {
 	public int NumberOfHorizontalRays = 5, NumberOfVerticalRays = 5;
 	public float RayOffset = .05f;
 	public float MaxSlope = 45;
-	public float sprintingBoost = 6f;
+	public float sprintingBoost = 3f;
 	public float JumpHeight = 5f;
 	public float JumpSpeed = 3.5f;
 	public float FullJumpTime = .35f;
@@ -26,6 +26,7 @@ public abstract class MovementController : MonoBehaviour {
 	protected float targetHeight;
 	protected float h;
 	protected Vector2 velocity;
+	protected float rotation;
 	protected Animator _anim;
 	protected Vector2 _movingPlatformSpeed;
 	protected Health _health;
@@ -61,6 +62,7 @@ public abstract class MovementController : MonoBehaviour {
 	virtual protected void Update () {
 		DetermineDirection ();
 		CheckCollisions ();
+		SetRotationAngle();
 		if (!_health || _health.IsAlive) {
 			SetHorizontalSpeed ();
 		}
@@ -74,6 +76,7 @@ public abstract class MovementController : MonoBehaviour {
 	virtual protected void LateUpdate() {
 		velocity.y = Mathf.Clamp (velocity.y, -PhysicsSettings.MaxVerticalVelocity, PhysicsSettings.MaxVerticalVelocity);
 		rb.velocity = velocity + _movingPlatformSpeed;
+		rb.rotation = rotation;
 		_anim.SetFloat ("hVelocity", Mathf.Abs(h));
 		_lastPosition = new Vector2 (transform.position.x, transform.position.y);
 	}
@@ -173,11 +176,9 @@ public abstract class MovementController : MonoBehaviour {
 						if (hitRight.point.y < rightWallX) {
 							rightWallX = hitRight.point.x;
 						}
-
 					}
 				}
 			}
-
 			if (collidingRight) {
 				transform.position = new Vector3 (rightWallX - box.size.x / 2, transform.position.y, 0);
 			}
@@ -189,32 +190,28 @@ public abstract class MovementController : MonoBehaviour {
 			if (Facing.x > 0) {
 				Facing = Vector2.left;
 			}
-			if (!collidingLeft) {
-				if(sprinting){
-					velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
-				}
-				else velocity = new Vector2 (h * MaxSpeed, velocity.y);
-			} else {
-				velocity = new Vector2 (0, velocity.y);
-			}
+			setHorizontalVelocityByCollidingSides(collidingLeft);
 		} else if (h > .01f) {
 			if (Facing.x < 0) {
 				Facing = Vector2.right;
 			}
-
-			if (!collidingRight) {
-				if(sprinting){
-					velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
-				}
-				else velocity = new Vector2 (h * MaxSpeed, velocity.y);
-			} else {
-				velocity = new Vector2 (0, velocity.y);
-			}
+			setHorizontalVelocityByCollidingSides(collidingRight);
 		} else {
 			velocity = new Vector2 (0, velocity.y);
 		}
-		//if(sprinting) velocity += new Vector2(h * sprintingBoost, velocity.y);
 	}
+
+	protected void setHorizontalVelocityByCollidingSides(bool collidingSide){
+		if (!collidingSide) {
+			if(sprinting){
+				velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
+				}
+			else
+				velocity = new Vector2 (h * MaxSpeed, velocity.y);
+		} else {
+			velocity = new Vector2 (0, velocity.y);
+		}
+}
 
 	protected void SetVerticalSpeed () {
 		if (state == ControllerState.JumpAscending) {
@@ -242,6 +239,14 @@ public abstract class MovementController : MonoBehaviour {
 			state = ControllerState.JumpAscending;
 			targetHeight = _jumpStartY + JumpHeight;
 		}
+	}
+
+	protected void SetRotationAngle(){
+		RaycastHit2D hit = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.center.y), Vector2.down, box.bounds.size.y, ObstacleMask);
+		var angle = Vector2.SignedAngle(Vector3.up, hit.normal);
+ 		// Esta no es la solución, parece que hay veces en las que se ralla...
+		 if (angle < MaxSlope)
+			rotation = angle;
 	}
 
 	protected enum ControllerState {
