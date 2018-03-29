@@ -242,13 +242,8 @@ public abstract class MovementController : MonoBehaviour {
 	}
 
 	protected void SetRotationAngle(){
-		var grounNormal = Utils.Raycast2D(new Vector2(box.bounds.center.x, -box.bounds.size.y), Vector2.down, box.bounds.size.y, ObstacleMask).normal;
-		var angle = Vector2.SignedAngle(Vector3.up, grounNormal);
-		Debug.Log("Angle: " + angle);
- 		//Esta no es la solución, parece que hay veces en las que se ralla...
-		if (Mathf.Abs(angle) < MaxSlope)
-			rotation = angle;
-		else rotation = 0f;
+		var grounNormal = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.center.y), Vector2.down, box.bounds.size.y, ObstacleMask).normal;
+		transform.up = grounNormal;
 	}
 
 	protected enum ControllerState {
