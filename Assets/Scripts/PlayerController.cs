@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerController : MovementController {
 
 	public GameObject DaggerPrefab;
-	protected Vector2 mousePosition;
 	public float daggerSpeed = 6;
 
 	//https://pastebin.com/14H2X5j7
@@ -32,19 +31,12 @@ public class PlayerController : MovementController {
 		}
 
 		if (Input.GetMouseButtonDown(0)) {
-			// Lanzar daga
-			var dagger = GameObject.Instantiate(DaggerPrefab, transform.position, Quaternion.identity);
-			// El vector se tiene que convertir a coordenadas del personaje, por eso no va bien ;)
 			
-			// Parece que esta es otra forma de hacerlo, pero no va!
-			// Vector3 target;
-			// target = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-			// dagger.GetComponent<Rigidbody2D>().velocity = Vector2.MoveTowards(transform.position, target, 20f);
+			var direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+			direction.Normalize();
 
-			// Parece que esta es otra forma de hacerlo, pero no va!
-			// mousePosition = transform.InverseTransformVector(Input.mousePosition).normalized;
-			// Debug.Log("Mouse coordinates: " + mousePosition);
-			// dagger.GetComponent<Rigidbody2D>().velocity = mousePosition * daggerSpeed;
+			var dagger = GameObject.Instantiate(DaggerPrefab, transform.position + direction, Quaternion.identity);
+			dagger.GetComponent<Rigidbody2D>().velocity = direction * daggerSpeed;
 		}
 
 		//Checks if player is sprinting
