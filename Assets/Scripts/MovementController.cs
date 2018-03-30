@@ -30,7 +30,7 @@ public abstract class MovementController : MonoBehaviour {
 	protected Animator _anim;
 	protected Vector2 _movingPlatformSpeed;
 	protected Health _health;
-
+	protected Vector2 groundNormal;
 	protected float _jumpPressTime;
 	protected float _jumpStartY;
 	protected Vector2 _lastPosition;
@@ -63,6 +63,7 @@ public abstract class MovementController : MonoBehaviour {
 		DetermineDirection ();
 		CheckCollisions ();
 		SetRotationAngle();
+		groundAngleVelovityMultiplicator();
 		if (!_health || _health.IsAlive) {
 			SetHorizontalSpeed ();
 		}
@@ -242,8 +243,16 @@ public abstract class MovementController : MonoBehaviour {
 	}
 
 	protected void SetRotationAngle(){
-		var grounNormal = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.center.y), Vector2.down, box.bounds.size.y, ObstacleMask).normal;
-		transform.up = grounNormal;
+		var groundNormal = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.center.y), Vector2.down, box.bounds.size.y, ObstacleMask).normal;
+		transform.up = groundNormal;
+	}
+
+	protected void groundAngleVelovityMultiplicator(){
+		if(facing == Vector2.right){
+			Debug.Log("LEFT: Angle d'inclinaciò: 90º - Angle(V2.left, groundNormal): " + (90 - Vector2.Angle(Vector2.left, groundNormal)));
+		}else{
+			Debug.Log("RIGHT: Angle d'inclinaciò: 90º - Angle(V2.right, groundNormal): " + (90 - Vector2.Angle(Vector2.right, groundNormal)));
+		}
 	}
 
 	protected enum ControllerState {
