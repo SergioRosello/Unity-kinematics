@@ -34,7 +34,7 @@ public abstract class MovementController : MonoBehaviour {
 	protected float _jumpPressTime;
 	protected float _jumpStartY;
 	protected Vector2 _lastPosition;
-
+	protected float groundAngleVelovityMultiplicator;
 	public Vector2 Facing {
 		get {
 			return facing;
@@ -62,8 +62,6 @@ public abstract class MovementController : MonoBehaviour {
 	virtual protected void Update () {
 		DetermineDirection ();
 		CheckCollisions ();
-		SetRotationAngle();
-		groundAngleVelovityMultiplicator();
 		if (!_health || _health.IsAlive) {
 			SetHorizontalSpeed ();
 		}
@@ -127,6 +125,7 @@ public abstract class MovementController : MonoBehaviour {
 
 			if (collidingBelow) {
 				transform.position = new Vector3 (transform.position.x, groundY + box.size.y / 2, 0);
+				SetRotationAngle();
 			}
 
 			// Buscamos techo
@@ -243,18 +242,15 @@ public abstract class MovementController : MonoBehaviour {
 	}
 
 	protected void SetRotationAngle(){
-		var groundNormal = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.center.y), Vector2.down, box.bounds.size.y, ObstacleMask).normal;
+		groundNormal = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.center.y), Vector2.down, box.bounds.size.y, ObstacleMask).normal;
+		Debug.Log("Ground Normal: " + (Vector2.Angle(groundNormal, transform.right) - 90));
+		groundAngleVelovityMultiplicator = Mathf.Abs((Vector2.Angle(groundNormal, transform.right) - 90)) * 0.01f;
+		Debug.Log("Ground angle velocity multiplier: " + groundAngleVelovityMultiplicator);
+		Debug.Log("Velocity before: " + velocity);
+		velocity = new Vector2(velocity.x * groundAngleVelovityMultiplicator, velocity.y * groundAngleVelovityMultiplicator);
+		Debug.Log("Velocity after: " + velocity);
 		transform.up = groundNormal;
 	}
-
-	protected void groundAngleVelovityMultiplicator(){
-		if(facing == Vector2.right){
-			Debug.Log("LEFT: Angle d'inclinaciò: 90º - Angle(V2.left, groundNormal): " + (90 - Vector2.Angle(Vector2.left, groundNormal)));
-		}else{
-			Debug.Log("RIGHT: Angle d'inclinaciò: 90º - Angle(V2.right, groundNormal): " + (90 - Vector2.Angle(Vector2.right, groundNormal)));
-		}
-	}
-
 	protected enum ControllerState {
 		Grounded, JumpAscending, Falling
 	}
