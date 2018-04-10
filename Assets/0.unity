@@ -872,12 +872,32 @@ Prefab:
     - target: {fileID: 114758525180645182, guid: e8990ccdfdd356e4ca44f3fd0fcf539a,
         type: 2}
       propertyPath: scaleOnCrouch.x
-      value: 0.5
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 114758525180645182, guid: e8990ccdfdd356e4ca44f3fd0fcf539a,
         type: 2}
       propertyPath: scaleOnCrouch.y
-      value: 0.5
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 114758525180645182, guid: e8990ccdfdd356e4ca44f3fd0fcf539a,
+        type: 2}
+      propertyPath: crouchingVelocityReducer
+      value: 0.442
+      objectReference: {fileID: 0}
+    - target: {fileID: 114758525180645182, guid: e8990ccdfdd356e4ca44f3fd0fcf539a,
+        type: 2}
+      propertyPath: crouchedBoxSize.x
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 114758525180645182, guid: e8990ccdfdd356e4ca44f3fd0fcf539a,
+        type: 2}
+      propertyPath: crouchedBoxSize.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114758525180645182, guid: e8990ccdfdd356e4ca44f3fd0fcf539a,
+        type: 2}
+      propertyPath: MaxSpeed
+      value: 2.68
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: e8990ccdfdd356e4ca44f3fd0fcf539a, type: 2}

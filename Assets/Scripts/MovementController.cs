@@ -38,7 +38,7 @@ public abstract class MovementController : MonoBehaviour {
 	protected float groundAngleVelovityMultiplicator;
 	public Vector2 scaleOnCrouch;
 	[Range(0.0f, 1.0f)]
-	public float crouchingReducer;
+	public float crouchingVelocityReducer;
 	public Vector2 Facing {
 		get {
 			return facing;
@@ -53,6 +53,8 @@ public abstract class MovementController : MonoBehaviour {
 	private Vector3 originalScale;
 	private Vector3 originalBoxSize;
 
+	public Vector2 crouchedBoxSize;
+
 	// Use this for initialization
 	virtual protected void Awake () {
 		box = GetComponent<BoxCollider2D> ();
@@ -63,7 +65,7 @@ public abstract class MovementController : MonoBehaviour {
 		modelTransform = transform.Find("Model");
 		initialScale = modelTransform.localScale;
 		Facing = Vector2.right;
-		originalScale = transform.localScale;
+		originalScale = modelTransform.localScale;
 		originalBoxSize = box.size;
 	}
 	
@@ -84,11 +86,14 @@ public abstract class MovementController : MonoBehaviour {
 
 	protected void CheckifCrouched(){
 		if(crouching){
-			transform.localScale = scaleOnCrouch;
-			box.size *= scaleOnCrouch.x;
+			modelTransform.localScale = scaleOnCrouch;
+			box.size = crouchedBoxSize;
 		}else{
-			transform.localScale = originalScale;
+			modelTransform.localScale = originalScale;
 			box.size = originalBoxSize;
+		}
+		if(facing.x < 0){
+			modelTransform.localScale = new Vector3(-modelTransform.localScale.x, modelTransform.localScale.y, modelTransform.localScale.z);
 		}
 	}
 	virtual protected void LateUpdate() {
@@ -225,7 +230,7 @@ public abstract class MovementController : MonoBehaviour {
 			if(sprinting){
 				velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
 			}else if(crouching){
-				velocity = new Vector2 (h * MaxSpeed * crouchingReducer, velocity.y);
+				velocity = new Vector2 (h * MaxSpeed * crouchingVelocityReducer, velocity.y);
 			}
 			else
 				velocity = new Vector2 (h * MaxSpeed, velocity.y);
