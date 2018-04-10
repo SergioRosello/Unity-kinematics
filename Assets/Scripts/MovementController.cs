@@ -19,6 +19,7 @@ public abstract class MovementController : MonoBehaviour {
 	protected ControllerState state;
 	protected bool collidingBelow, collidingAbove, collidingLeft, collidingRight;
 	protected bool sprinting;
+	protected bool crouching;
 	protected float groundY, leftWallX, rightWallX, ceilingY;
 	protected Vector3 initialScale;
 	protected Vector2 facing;
@@ -35,6 +36,9 @@ public abstract class MovementController : MonoBehaviour {
 	protected float _jumpStartY;
 	protected Vector2 _lastPosition;
 	protected float groundAngleVelovityMultiplicator;
+	public Vector2 scaleOnCrouch;
+	[Range(0.0f, 1.0f)]
+	public float crouchingReducer;
 	public Vector2 Facing {
 		get {
 			return facing;
@@ -46,6 +50,9 @@ public abstract class MovementController : MonoBehaviour {
 		}
 	}
 
+	private Vector3 originalScale;
+	private Vector3 originalBoxSize;
+
 	// Use this for initialization
 	virtual protected void Awake () {
 		box = GetComponent<BoxCollider2D> ();
@@ -56,12 +63,15 @@ public abstract class MovementController : MonoBehaviour {
 		modelTransform = transform.Find("Model");
 		initialScale = modelTransform.localScale;
 		Facing = Vector2.right;
+		originalScale = transform.localScale;
+		originalBoxSize = box.size;
 	}
 	
 	// Update is called once per frame
 	virtual protected void Update () {
 		DetermineDirection ();
 		CheckCollisions ();
+		CheckifCrouched();
 		if (!_health || _health.IsAlive) {
 			SetHorizontalSpeed ();
 		}
@@ -72,6 +82,15 @@ public abstract class MovementController : MonoBehaviour {
 		}
 	}
 
+	protected void CheckifCrouched(){
+		if(crouching){
+			transform.localScale = scaleOnCrouch;
+			box.size *= scaleOnCrouch.x;
+		}else{
+			transform.localScale = originalScale;
+			box.size = originalBoxSize;
+		}
+	}
 	virtual protected void LateUpdate() {
 		velocity.y = Mathf.Clamp (velocity.y, -PhysicsSettings.MaxVerticalVelocity, PhysicsSettings.MaxVerticalVelocity);
 		rb.velocity = velocity + _movingPlatformSpeed;
@@ -205,7 +224,9 @@ public abstract class MovementController : MonoBehaviour {
 		if (!collidingSide) {
 			if(sprinting){
 				velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
-				}
+			}else if(crouching){
+				velocity = new Vector2 (h * MaxSpeed * crouchingReducer, velocity.y);
+			}
 			else
 				velocity = new Vector2 (h * MaxSpeed, velocity.y);
 		} else {

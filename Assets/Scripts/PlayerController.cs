@@ -7,8 +7,6 @@ public class PlayerController : MovementController {
 	public GameObject DaggerPrefab;
 	public float daggerSpeed = 6;
 
-	//https://pastebin.com/14H2X5j7
-
 	// Use this for initialization
 	protected override void Awake () {
 		base.Awake ();
@@ -18,6 +16,7 @@ public class PlayerController : MovementController {
 	protected override void Update () {
 		base.Update ();
 
+		// Saltar
 		if (Input.GetKeyDown (KeyCode.Space)) {
 			TryJump ();
 		} else if (Input.GetKeyUp(KeyCode.Space)){
@@ -30,6 +29,7 @@ public class PlayerController : MovementController {
 			Debug.Log ("Jumping " + (JumpHeight * percentHeight) +" meters");
 		}
 
+		// Disparar
 		if (Input.GetMouseButtonDown(0)) {
 			
 			var direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
@@ -39,9 +39,13 @@ public class PlayerController : MovementController {
 			dagger.GetComponent<Rigidbody2D>().velocity = direction * daggerSpeed;
 		}
 
-		//Checks if player is sprinting
+		// Sprint
 		if(Input.GetKey(KeyCode.LeftShift)) sprinting = true;
 		else sprinting = false;
+
+		// Agacharse
+		if(Input.GetKey(KeyCode.LeftAlt)) crouching = true;
+		else crouching = false;
 	}
 
 	protected override void DetermineDirection() {
