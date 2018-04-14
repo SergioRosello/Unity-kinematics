@@ -575,7 +575,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000013301305156}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.57, y: 0.23348258, z: 0}
+  m_LocalPosition: {x: 15.33, y: 0.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4534076795122258}
@@ -1079,6 +1079,10 @@ MonoBehaviour:
   JumpSpeed: 3.5
   FullJumpTime: 0.35
   MinJumpPercent: 0.4
+  scaleOnCrouch: {x: 0, y: 0}
+  crouchingVelocityReducer: 0
+  crouchedBoxSize: {x: 0, y: 0}
+  maxJumps: 0
 --- !u!114 &114799542977259148
 MonoBehaviour:
   m_ObjectHideFlags: 1

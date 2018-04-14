@@ -7,4 +7,5 @@ public class Layers {
 	public const int Enemies = 9;
 	public const int Platforms = 10;
 	public const int MovingPlatforms = 11;
+	public const int OneWayPlatform = 12;
 }

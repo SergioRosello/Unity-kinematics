@@ -33,12 +33,14 @@ public class PlayerController : MovementController {
 		if (Input.GetMouseButtonDown(0)) {
 			
 			var direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-			direction.Normalize();
 
-			var dagger = GameObject.Instantiate(DaggerPrefab, transform.position + direction, Quaternion.identity);
-			dagger.GetComponent<Rigidbody2D>().velocity = direction * daggerSpeed;
-			//TODO: Falta hacer que los machetes estén dirigidos hacia el cursor
-			// dagger.GetComponent<Transform>().rotation.SetLookRotation(direction);
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+			if(angle > 90) angle -= 180;
+			else if(angle < -90) angle += 180;
+
+			var dagger = GameObject.Instantiate(DaggerPrefab, transform.position, Quaternion.Euler(0,0,angle));
+			dagger.GetComponent<Rigidbody2D>().velocity = new Vector2(direction.x, direction.y).normalized * daggerSpeed;
+
 		}
 
 		// Sprint
