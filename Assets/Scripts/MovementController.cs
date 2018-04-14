@@ -227,14 +227,15 @@ public abstract class MovementController : MonoBehaviour {
 	}
 
 	protected void setHorizontalVelocityByCollidingSides(bool collidingSide){
+		float angleVelocityMultiplier = CalculateVelocityOnAngle();
 		if (!collidingSide) {
 			if(sprinting){
-				velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
+				velocity = new Vector2 (h * MaxSpeed * sprintingBoost * angleVelocityMultiplier, velocity.y);
 			}else if(crouching){
-				velocity = new Vector2 (h * MaxSpeed * crouchingVelocityReducer, velocity.y);
+				velocity = new Vector2 (h * MaxSpeed * crouchingVelocityReducer * angleVelocityMultiplier, velocity.y);
 			}
 			else
-				velocity = new Vector2 (h * MaxSpeed, velocity.y);
+				velocity = new Vector2 (h * MaxSpeed * angleVelocityMultiplier, velocity.y);
 		} else {
 			velocity = new Vector2 (0, velocity.y);
 		}
@@ -277,22 +278,34 @@ public abstract class MovementController : MonoBehaviour {
 	}
 	protected void SetRotationAngle(){
 		groundNormal = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.center.y), Vector2.down, box.bounds.size.y, ObstacleMask).normal;
-		Debug.Log("Ground Normal: " + (Vector2.Angle(groundNormal, transform.right) - 90));
-		groundAngleVelovityMultiplicator = Mathf.Abs((Vector2.Angle(groundNormal, transform.right) - 90)) * 0.01f;
-		Debug.Log("Ground angle velocity multiplier: " + groundAngleVelovityMultiplicator);
-		Debug.Log("Velocity before: " + velocity);
-		velocity = new Vector2(velocity.x * groundAngleVelovityMultiplicator, velocity.y * groundAngleVelovityMultiplicator);
-		Debug.Log("Velocity after: " + velocity);
 		transform.up = groundNormal;
-		//Falta girar el "Down" del box para que se ajuste al terreno
 	}
 
-	protected void CalculateVelocityOnAngle(){
-		// Calcular el vector 
-		var angle = rb.transform.right - new Vector3(groundNormal.x, groundNormal.y, 0);
-		
-		Debug.Log("Angle: " + angle);
-		
+	protected float CalculateVelocityOnAngle(){
+		RaycastHit2D LeftHillDetector = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.min.y + 0.2f), Vector2.left, box.bounds.size.x, ObstacleMask);
+		RaycastHit2D RightHillDetector = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.min.y + 0.2f), Vector2.right, box.bounds.size.x, ObstacleMask);
+		// 1. Sacar el vector normal al suelo
+		float angleDiference = Mathf.Abs(Vector3.Angle(transform.up, Vector2.up));
+		// 2. Sacar la diferencia entre el vector up y el nuevo transform.up
+		// 3. Hacer porcentaje
+		angleDiference = 1 - (angleDiference / 100);
+		// 4. Multiplicar por la velocidad
+		if(angleDiference == 0){
+			return 1;
+		// Colisiona por la izquierda y no por la derecha
+		}else if(LeftHillDetector && !RightHillDetector){
+			// Está subiendo la cuesta
+			if(facing == Vector2.left) return angleDiference;
+			// Está bajando la cuesta
+			else return (1+angleDiference);
+		// Colisiona por la derecha y no por la izquierda
+		}else if(RightHillDetector && !LeftHillDetector){
+			// Está bajando la cuesta
+			if(facing == Vector2.left) return (1 + angleDiference);
+			// Está subiendo la cuesta
+			else return angleDiference;
+		}
+		return angleDiference;
 	}
 	protected enum ControllerState {
 		Grounded, JumpAscending, Falling

@@ -37,6 +37,8 @@ public class PlayerController : MovementController {
 
 			var dagger = GameObject.Instantiate(DaggerPrefab, transform.position + direction, Quaternion.identity);
 			dagger.GetComponent<Rigidbody2D>().velocity = direction * daggerSpeed;
+			//TODO: Falta hacer que los machetes estén dirigidos hacia el cursor
+			// dagger.GetComponent<Transform>().rotation.SetLookRotation(direction);
 		}
 
 		// Sprint
