@@ -54,7 +54,8 @@ public abstract class MovementController : MonoBehaviour {
 	private Vector3 originalBoxSize;
 
 	public Vector2 crouchedBoxSize;
-
+	public int maxJumps;
+	private int maxJumpsAux;
 	// Use this for initialization
 	virtual protected void Awake () {
 		box = GetComponent<BoxCollider2D> ();
@@ -259,14 +260,21 @@ public abstract class MovementController : MonoBehaviour {
 
 	protected void TryJump () {
 		if (collidingBelow) {
-			// Saltar
-			_jumpPressTime = Time.time;
-			_jumpStartY = transform.position.y;
-			state = ControllerState.JumpAscending;
-			targetHeight = _jumpStartY + JumpHeight;
+			maxJumpsAux = maxJumps;
+			Jump();			
+		}
+		else if(maxJumpsAux != maxJumps && maxJumpsAux > 0){
+			Jump();
 		}
 	}
 
+	protected void Jump(){
+		_jumpPressTime = Time.time;
+		_jumpStartY = transform.position.y;
+		state = ControllerState.JumpAscending;
+		targetHeight = _jumpStartY + JumpHeight;
+		maxJumpsAux--;
+	}
 	protected void SetRotationAngle(){
 		groundNormal = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.center.y), Vector2.down, box.bounds.size.y, ObstacleMask).normal;
 		Debug.Log("Ground Normal: " + (Vector2.Angle(groundNormal, transform.right) - 90));
@@ -276,6 +284,15 @@ public abstract class MovementController : MonoBehaviour {
 		velocity = new Vector2(velocity.x * groundAngleVelovityMultiplicator, velocity.y * groundAngleVelovityMultiplicator);
 		Debug.Log("Velocity after: " + velocity);
 		transform.up = groundNormal;
+		//Falta girar el "Down" del box para que se ajuste al terreno
+	}
+
+	protected void CalculateVelocityOnAngle(){
+		// Calcular el vector 
+		var angle = rb.transform.right - new Vector3(groundNormal.x, groundNormal.y, 0);
+		
+		Debug.Log("Angle: " + angle);
+		
 	}
 	protected enum ControllerState {
 		Grounded, JumpAscending, Falling
